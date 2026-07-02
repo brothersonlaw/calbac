@@ -1,0 +1,13 @@
+# CalBAC is a static site — no build step. The repo root is the publish dir.
+[build]
+  publish = "."
+
+# Security headers (defensive defaults for a client-only app).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    # Everything runs locally; lock the app down to its own origin + inline styles.
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; base-uri 'none'; form-action 'none'"

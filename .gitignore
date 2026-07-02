@@ -1,0 +1,14 @@
+# Editor / OS cruft
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local preview/server logs
+*.log
+
+# Netlify
+.netlify/
+
+# Local dev / preview config (machine-specific absolute paths)
+.claude/

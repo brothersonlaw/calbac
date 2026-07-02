@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CalBAC — California DUI BAC Timeline & Retrograde Toolkit</title>
+<meta name="description" content="Free, open-source BAC timeline, retrograde extrapolation, and breath-test analysis toolkit for California DUI defense practitioners." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230e2a47'/><path d='M4 24 C10 24 12 8 18 8 C24 8 22 20 28 20' stroke='%2338bdaa' stroke-width='2.5' fill='none' stroke-linecap='round'/><line x1='4' y1='26' x2='28' y2='26' stroke='%23f4b740' stroke-width='2'/></svg>" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true">
+      <rect width="32" height="32" rx="7" fill="#0e2a47"/>
+      <path d="M4 24 C10 24 12 8 18 8 C24 8 22 20 28 20" stroke="#38bdaa" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <line x1="4" y1="26" x2="28" y2="26" stroke="#f4b740" stroke-width="2"/>
+    </svg>
+    <div>
+      <h1>CalBAC</h1>
+      <span class="tagline">DUI BAC Timeline &amp; Retrograde Toolkit · California</span>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="timeline">Timeline &amp; BAC</button>
+    <button class="tab" data-tab="retro">Retrograde</button>
+    <button class="tab" data-tab="breath">Breath Test</button>
+    <button class="tab" data-tab="cross">Cross-Exam</button>
+    <button class="tab" data-tab="science">Science &amp; Sources</button>
+  </nav>
+  <button id="themeToggle" class="theme-toggle" title="Toggle light / dark">◐</button>
+</header>
+
+<div class="disclaimer-bar">
+  ⚖️ Educational modeling tool — not legal advice, not a substitute for a qualified forensic toxicologist.
+  Outputs are estimates that depend entirely on your assumptions.
+</div>
+
+<main>
+
+<!-- ============================== TIMELINE TAB ============================== -->
+<section class="panel active" id="tab-timeline">
+  <div class="layout">
+
+    <!-- INPUT COLUMN -->
+    <aside class="inputs">
+      <div class="card">
+        <h2>Subject</h2>
+        <div class="row">
+          <label>Sex
+            <select id="sex">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </label>
+          <label>Age
+            <input type="number" id="age" value="35" min="18" max="99" />
+          </label>
+        </div>
+        <div class="row">
+          <label>Weight
+            <input type="number" id="weight" value="180" min="70" />
+          </label>
+          <label>&nbsp;
+            <select id="weightUnit">
+              <option value="lb">lb</option>
+              <option value="kg">kg</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <label>Height
+            <input type="number" id="height" value="70" />
+          </label>
+          <label>&nbsp;
+            <select id="heightUnit">
+              <option value="in">inches</option>
+              <option value="cm">cm</option>
+            </select>
+          </label>
+        </div>
+        <div class="row rmode">
+          <label class="rmode-label"><span class="lbl-text">Widmark <em>r</em><sup class="fn-ref" title="What is this?">*</sup></span>
+            <select id="rMode">
+              <option value="watson">Auto (Watson TBW)</option>
+              <option value="fixed">Fixed value</option>
+            </select>
+          </label>
+          <label id="rFixedWrap" style="display:none">Value
+            <input type="number" id="rFixed" value="0.68" step="0.01" min="0.4" max="0.95" />
+          </label>
+        </div>
+        <p class="hint" id="rHint"></p>
+        <p class="footnote" id="fn-r"><span class="fn-star">*</span> <strong>Widmark <em>r</em></strong> is the
+          alcohol <strong>distribution ratio</strong> — the share of the body that holds water, where alcohol goes.
+          <strong>Auto (Watson TBW)</strong> derives it from the subject's sex, age, height &amp; weight;
+          <strong>Fixed</strong> lets you type it in (male avg ≈ 0.68, female ≈ 0.55). Lower <em>r</em> → higher BAC.
+          Auto also spreads the best/worst band across the population range; Fixed pins <em>r</em> so the band
+          reflects only the elimination-rate (β) range.</p>
+      </div>
+
+      <div class="card">
+        <h2>Drinks</h2>
+        <div class="drink-adder">
+          <input type="text" id="drinkSearch" list="drinkList" placeholder="Search drinks (e.g. IPA, margarita)…" />
+          <datalist id="drinkList"></datalist>
+        </div>
+        <div class="row triple">
+          <label>Time<input type="time" id="drinkTime" /></label>
+          <label>Vol (oz)<input type="number" id="drinkOz" value="12" step="0.5" min="0" /></label>
+          <label>ABV %<input type="number" id="drinkAbv" value="5" step="0.1" min="0" /></label>
+        </div>
+        <button class="btn add" id="addDrink">+ Add drink</button>
+        <ul class="drink-list" id="drinkListUI"></ul>
+        <div class="drink-total" id="drinkTotal"></div>
+      </div>
+
+      <div class="card">
+        <h2>Key events</h2>
+        <label class="stack">Time of driving / incident
+          <input type="time" id="drivingTime" />
+        </label>
+        <label class="stack">Chemical test time
+          <input type="time" id="testTime" />
+        </label>
+        <div class="row">
+          <label>Test type
+            <select id="testType">
+              <option value="breath">Breath</option>
+              <option value="blood">Blood</option>
+            </select>
+          </label>
+          <label>Test result
+            <input type="number" id="testResult" step="0.001" placeholder="0.10" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Assumptions</h2>
+        <label class="stack">Stomach contents (absorption)
+          <select id="absorption">
+            <option value="empty">Empty stomach (fast)</option>
+            <option value="light" selected>Light food</option>
+            <option value="full">Full meal (slow)</option>
+          </select>
+        </label>
+        <label class="stack">Elimination rate β (g/dL/hr)
+          <div class="beta-row">
+            <span>slow</span>
+            <input type="number" id="betaLow"  value="0.010" step="0.001" />
+            <span>mid</span>
+            <input type="number" id="betaMid"  value="0.015" step="0.001" />
+            <span>fast</span>
+            <input type="number" id="betaHigh" value="0.020" step="0.001" />
+          </div>
+        </label>
+        <p class="hint">Dubowski population range ≈ 0.006–0.040. Slow β + low r = worst case for the defendant.</p>
+      </div>
+    </aside>
+
+    <!-- OUTPUT COLUMN -->
+    <div class="output">
+      <div class="card chart-card">
+        <div class="chart-head">
+          <h2>BAC over time</h2>
+          <div class="legend">
+            <span class="lg env">Best–worst range</span>
+            <span class="lg mid">Mid estimate</span>
+            <span class="lg lim">0.08 limit</span>
+          </div>
+        </div>
+        <svg id="bacChart" viewBox="0 0 900 460" preserveAspectRatio="xMidYMid meet" role="img" aria-label="BAC timeline chart"></svg>
+      </div>
+
+      <div class="result-grid" id="resultGrid"></div>
+      <div class="card verdict" id="verdictCard" style="display:none"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== RETROGRADE TAB ============================== -->
+<section class="panel" id="tab-retro">
+  <div class="narrow">
+    <div class="card">
+      <h2>Retrograde extrapolation</h2>
+      <p class="lead">Estimate BAC at the time of driving from a later chemical test, assuming the subject was
+        <strong>post-absorptive</strong> (past peak) the entire time. The tool adds back the alcohol eliminated
+        between driving and the test:
+        <span class="inline-eq">BAC<sub>driving</sub> = BAC<sub>test</sub> + β · hours</span> —
+        where <strong>β (beta) is the elimination rate</strong>, i.e. how much BAC the body clears per hour.
+        If the subject was still absorbing, this <em>overstates</em> the driving BAC — the rising-BAC defense.</p>
+      <div class="row">
+        <label>Test result (BAC)<input type="number" id="rTest" value="0.10" step="0.001" /></label>
+        <label>Hours between driving &amp; test<input type="number" id="rHours" value="1.5" step="0.25" min="0" /></label>
+      </div>
+      <p class="field-caption">Elimination rate <strong>β</strong> (g/dL per hour) — Dubowski population range ≈ 0.006–0.040:</p>
+      <div class="row">
+        <label>slow<input type="number" id="rBetaLow" value="0.010" step="0.001" /></label>
+        <label>mid<input type="number" id="rBetaMid" value="0.015" step="0.001" /></label>
+        <label>fast<input type="number" id="rBetaHigh" value="0.020" step="0.001" /></label>
+      </div>
+      <div id="retroResult" class="retro-result"></div>
+    </div>
+    <div class="card note-card">
+      <h3>Why this cuts both ways</h3>
+      <ul class="bullets">
+        <li><strong>For the prosecution:</strong> if truly post-absorptive, driving BAC was <em>higher</em> than the test.</li>
+        <li><strong>For the defense:</strong> retrograde is only valid post-peak. Absent a known drinking pattern, no one can say which phase the driver was in — see the Cross-Exam tab.</li>
+        <li>The wider the time gap and the more uncertain β, the less reliable the number.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== BREATH TAB ============================== -->
+<section class="panel" id="tab-breath">
+  <div class="narrow">
+    <div class="card">
+      <h2>Breath test &amp; blood:breath ratio</h2>
+      <p class="lead">Breath instruments assume a fixed <strong>2100:1</strong> blood-to-breath ratio. Real ratios vary
+        (~1100:1 to 4200:1). A lower personal ratio means the machine <em>over-reports</em>. Breathing pattern and
+        breath temperature bias the reading further.</p>
+      <div class="row">
+        <label>Reported BrAC<input type="number" id="bReported" value="0.10" step="0.001" /></label>
+        <label>Subject's true ratio
+          <input type="range" id="bRatio" min="1100" max="4200" step="50" value="2100" />
+          <div class="ratio-readout"><span id="bRatioVal">2100:1</span> <span class="muted">(2100:1 = machine assumption)</span></div>
+        </label>
+      </div>
+      <fieldset class="biases">
+        <legend>Breathing / temperature factors</legend>
+        <label><input type="checkbox" value="hyperventilation20s" /> Hyperventilated ~20 s before test <span class="tag down">−11%</span></label>
+        <label><input type="checkbox" value="holdBreath15s" /> Held breath ~15 s before test <span class="tag up">+12%</span></label>
+        <label><input type="checkbox" value="prolongedExhalation" /> Prolonged / forced exhalation <span class="tag up">+16%</span></label>
+        <label><input type="checkbox" value="elevatedBreathTemp" /> Elevated breath temp (+1 °C) <span class="tag up">+6.5%</span></label>
+      </fieldset>
+      <div id="breathResult" class="breath-result"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CROSS-EXAM TAB ============================== -->
+<section class="panel" id="tab-cross">
+  <div class="narrow">
+    <div class="card">
+      <h2>Assumption cross-examination generator</h2>
+      <p class="lead">Builds a leading-question outline that walks the State's expert through the untested assumptions
+        behind a retrograde opinion, ending on reasonable doubt. Fill in the case facts and copy the script.</p>
+      <div class="row triple">
+        <label>Subject name<input type="text" id="cName" value="Ms. Roseliz" /></label>
+        <label>Pronoun<select id="cPron"><option value="she">she/her</option><option value="he">he/his</option><option value="they">they/their</option></select></label>
+        <label>Reported BAC<input type="number" id="cBac" value="0.16" step="0.001" /></label>
+      </div>
+      <div class="row triple">
+        <label>Driving time<input type="time" id="cDrive" value="23:40" /></label>
+        <label>Test time<input type="time" id="cTest" value="01:18" /></label>
+        <label>Per se limit<input type="number" id="cLimit" value="0.08" step="0.01" /></label>
+      </div>
+      <button class="btn add" id="genCross">Generate cross-examination</button>
+      <button class="btn ghost" id="copyCross">Copy script</button>
+      <div id="crossResult" class="cross-result"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== SCIENCE TAB ============================== -->
+<section class="panel" id="tab-science">
+  <div class="narrow prose" id="scienceProse"></div>
+</section>
+
+</main>
+
+<footer class="app-footer">
+  <span>CalBAC · Free &amp; open source (MIT)</span>
+  <span class="sep">·</span>
+  <span>All computation runs locally in your browser — no data leaves this device.</span>
+</footer>
+
+<script src="data/drinks.js"></script>
+<script src="js/science.js"></script>
+<script src="js/chart.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
