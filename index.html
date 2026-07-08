@@ -26,7 +26,6 @@
     <button class="tab active" data-tab="timeline">Timeline &amp; BAC</button>
     <button class="tab" data-tab="retro">Retrograde</button>
     <button class="tab" data-tab="breath">Breath Test</button>
-    <button class="tab" data-tab="cross">Cross-Exam</button>
     <button class="tab" data-tab="science">Science &amp; Sources</button>
   </nav>
   <button id="themeToggle" class="theme-toggle" title="Toggle light / dark">◐</button>
@@ -207,7 +206,7 @@
       <h3>Why this cuts both ways</h3>
       <ul class="bullets">
         <li><strong>For the prosecution:</strong> if truly post-absorptive, driving BAC was <em>higher</em> than the test.</li>
-        <li><strong>For the defense:</strong> retrograde is only valid post-peak. Absent a known drinking pattern, no one can say which phase the driver was in — see the Cross-Exam tab.</li>
+        <li><strong>For the defense:</strong> retrograde is only valid post-peak. Absent a known drinking pattern, no one can say for certain which phase — absorptive, peak, or elimination — the driver was in.</li>
         <li>The wider the time gap and the more uncertain β, the less reliable the number.</li>
       </ul>
     </div>
@@ -237,30 +236,6 @@
         <label><input type="checkbox" value="elevatedBreathTemp" /> Elevated breath temp (+1 °C) <span class="tag up">+6.5%</span></label>
       </fieldset>
       <div id="breathResult" class="breath-result"></div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================== CROSS-EXAM TAB ============================== -->
-<section class="panel" id="tab-cross">
-  <div class="narrow">
-    <div class="card">
-      <h2>Assumption cross-examination generator</h2>
-      <p class="lead">Builds a leading-question outline that walks the State's expert through the untested assumptions
-        behind a retrograde opinion, ending on reasonable doubt. Fill in the case facts and copy the script.</p>
-      <div class="row triple">
-        <label>Subject name<input type="text" id="cName" value="Ms. Roseliz" /></label>
-        <label>Pronoun<select id="cPron"><option value="she">she/her</option><option value="he">he/his</option><option value="they">they/their</option></select></label>
-        <label>Reported BAC<input type="number" id="cBac" value="0.16" step="0.001" /></label>
-      </div>
-      <div class="row triple">
-        <label>Driving time<input type="time" id="cDrive" value="23:40" /></label>
-        <label>Test time<input type="time" id="cTest" value="01:18" /></label>
-        <label>Per se limit<input type="number" id="cLimit" value="0.08" step="0.01" /></label>
-      </div>
-      <button class="btn add" id="genCross">Generate cross-examination</button>
-      <button class="btn ghost" id="copyCross">Copy script</button>
-      <div id="crossResult" class="cross-result"></div>
     </div>
   </div>
 </section>

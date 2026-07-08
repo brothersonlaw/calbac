@@ -348,86 +348,6 @@
       <div class="applied-box"><strong>Factors applied:</strong>${appliedList}</div>`;
   }
 
-  // ------------------------------------------- Cross-exam tab ---------------
-  function generateCross() {
-    const name = $('cName').value || 'the defendant';
-    const pron = $('cPron').value;
-    const P = {
-      she: { subj: 'she', pos: 'her', obj: 'her' },
-      he:  { subj: 'he',  pos: 'his', obj: 'him' },
-      they:{ subj: 'they',pos: 'their',obj: 'them' },
-    }[pron];
-    const bac = fmt(parseFloat($('cBac').value), 2);
-    const drive = to12h($('cDrive').value);
-    const test = to12h($('cTest').value);
-    const limit = fmt(parseFloat($('cLimit').value), 2);
-
-    const Q = [
-      ['ANCHOR THE OPINION', [
-        `You testified that ${name}'s BAC must have been about ${bac} when ${P.subj} was driving, based on retrograde extrapolation?`,
-        `To reach that conclusion, you had to make a number of assumptions — correct?`,
-      ]],
-      ['ELIMINATION RATE', [
-        `You assumed ${name} eliminates alcohol at an "average" rate?`,
-        `You have no idea what ${P.pos} actual elimination rate is?`,
-        `You never measured it?`,
-        `Elimination rates vary widely from person to person — as low as 0.010 and as high as 0.030 or more per hour?`,
-      ]],
-      ['ABSORPTION STATE', [
-        `You assumed ${name} had fully absorbed all of ${P.pos} alcohol by the time of driving?`,
-        `To know someone is fully absorbed, you'd need to know certain facts, correct?`,
-        `You'd need to know when ${P.subj} started drinking?`,
-        `When ${P.subj} stopped drinking?`,
-        `How many drinks ${P.subj} had?`,
-        `And the alcohol content of each of those drinks?`,
-        `You don't know when ${name} started drinking that night?`,
-        `You don't know when ${P.subj} stopped?`,
-        `You don't know how many drinks ${P.subj} had?`,
-        `You don't know how strong or weak those drinks were?`,
-      ]],
-      ['THE PHASE PROBLEM', [
-        `Because you don't know those things, you can't say which phase — absorptive, peak, or elimination — ${name} was in while driving?`,
-        `A person's BAC rises while alcohol is still being absorbed?`,
-        `So a BAC of ${bac} at ${test} could reflect a peak reached after ${P.subj} was already stopped?`,
-      ]],
-      ['COUNTER-ASSUMPTION', [
-        `Suppose the ${bac} test at ${test} was taken at ${P.pos} peak.`,
-        `If that's so, then at ${drive} — when ${P.subj} was driving — ${P.subj} would have been at an earlier, lower point on the curve?`,
-        `And because we don't know ${P.pos} true consumption or absorption rate, we can't say precisely what ${P.pos} BAC was at ${drive}?`,
-      ]],
-      ['CLOSE ON REASONABLE DOUBT', [
-        `So, without making assumptions you cannot support with facts, you cannot tell this jury to a scientific certainty that ${name}'s BAC was above ${limit} at ${drive}?`,
-      ]],
-    ];
-
-    const html = Q.map(([h, qs]) => `
-      <div class="cross-section">
-        <h4>${h}</h4>
-        <ol>${qs.map(q => `<li>${q}</li>`).join('')}</ol>
-      </div>`).join('');
-    $('crossResult').innerHTML = html;
-    $('crossResult').dataset.plain = Q.map(([h, qs]) =>
-      `\n${h}\n${qs.map((q, i) => `  ${i + 1}. ${q}`).join('\n')}`).join('\n');
-  }
-
-  function to12h(hhmm) {
-    const m = parseHHMM(hhmm);
-    if (m == null) return hhmm;
-    let h = Math.floor(m / 60), mm = (m % 60).toString().padStart(2, '0');
-    const ap = h >= 12 ? 'p.m.' : 'a.m.';
-    h = h % 12 || 12;
-    return `${h}:${mm} ${ap}`;
-  }
-
-  $('genCross').addEventListener('click', generateCross);
-  $('copyCross').addEventListener('click', () => {
-    const txt = $('crossResult').dataset.plain || '';
-    navigator.clipboard.writeText(txt.trim()).then(() => {
-      const b = $('copyCross'); const t = b.textContent;
-      b.textContent = 'Copied ✓'; setTimeout(() => (b.textContent = t), 1500);
-    });
-  });
-
   // ------------------------------------------- Science prose ----------------
   $('scienceProse').innerHTML = `
     <h2>How CalBAC models BAC</h2>
@@ -458,8 +378,8 @@
 
     <h3>Retrograde extrapolation</h3>
     <p>BAC<sub>driving</sub> = BAC<sub>test</sub> + β · (hours between). Valid <em>only</em> if the subject was
-    post-absorptive the whole time. Without a known drinking pattern, that assumption is untestable — the crux of the
-    Cross-Exam outline.</p>
+    post-absorptive the whole time. Without a known drinking pattern, that assumption is untestable — the standard
+    line of attack on any retrograde opinion.</p>
 
     <h3>Breath testing &amp; the 2100:1 assumption</h3>
     <p>Breath machines convert breath to blood using a fixed 2100:1 ratio, but real ratios run ~1100:1–4200:1.
@@ -513,7 +433,6 @@
     recompute();
     computeRetro();
     computeBreath();
-    generateCross();
   }
   seedDemo();
 })();

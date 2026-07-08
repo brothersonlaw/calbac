@@ -2,9 +2,8 @@
 
 A **free, open-source** web app for California DUI defense practitioners. CalBAC
 models blood-alcohol concentration (BAC) over time, tests the assumptions behind
-retrograde-extrapolation opinions, analyzes breath-test bias, and generates a
-ready-to-use cross-examination outline — all in the browser, with **no data ever
-leaving the device**.
+retrograde-extrapolation opinions, and analyzes breath-test bias — all in the
+browser, with **no data ever leaving the device**.
 
 It is a free, transparent alternative to closed commercial tools like "DUI Pro,"
 built on the same forensic backbone (Widmark + Watson) but with every formula
@@ -24,7 +23,6 @@ open to inspection.
 | **Timeline & BAC** | Build a drink-by-drink timeline, mark the driving and test times, and see a BAC curve with a best/worst-case envelope, California threshold lines (0.08 / 0.05 / 0.04 / 0.01), and live readouts at each key moment. Flags **rising-BAC** situations and straddle-the-limit ranges automatically. |
 | **Retrograde** | Back-extrapolate a later test to the time of driving across a range of elimination rates, with plain-English caveats about when it's valid. |
 | **Breath Test** | Show how a subject's true blood:breath ratio (real range ~1100:1–4200:1) and breathing/temperature factors bias a breath reading away from the machine's fixed 2100:1 assumption. |
-| **Cross-Exam** | Generate a personalized leading-question outline that walks the State's expert through every untested assumption behind a retrograde opinion and closes on reasonable doubt. One-click copy. |
 | **Science & Sources** | The math, the citations, and the California thresholds, laid out plainly. |
 
 ## The science
